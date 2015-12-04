@@ -1065,7 +1065,7 @@ void rockchip_wifi_exit_module(void)
     rtw_drv_halt();
 }
 
-#ifdev RFKILL_EARLY
+#ifdef RFKILL_EARLY
 late_initcall(rockchip_wifi_init_module);
 module_exit(rockchip_wifi_exit_module);
 #else
