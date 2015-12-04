@@ -749,7 +749,7 @@ static void __exit rfkill_rk_exit(void)
 	platform_driver_unregister(&rfkill_rk_driver);
 }
 
-#ifdef RFKILL_LATE
+#ifdef CONFIG_RFKILL_LATE
 late_initcall(rfkill_rk_init);
 module_exit(rfkill_rk_exit);
 #else
