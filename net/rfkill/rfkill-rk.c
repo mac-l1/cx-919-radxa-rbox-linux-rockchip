@@ -45,7 +45,7 @@
 #include <linux/proc_fs.h>
 #include <linux/uaccess.h>
 
-#if 0
+#if RFKILL_DEBUG
 #define DBG(x...)   printk(KERN_INFO "[BT_RFKILL]: "x)
 #else
 #define DBG(x...)
@@ -749,10 +749,15 @@ static void __exit rfkill_rk_exit(void)
 	platform_driver_unregister(&rfkill_rk_driver);
 }
 
+#ifdef RFKILL_LATE
+late_initcall(rfkill_rk_init);
+module_exit(rfkill_rk_exit);
+#else
 module_init(rfkill_rk_init);
 module_exit(rfkill_rk_exit);
+#endif
 
-MODULE_DESCRIPTION("rock-chips rfkill for Bluetooth v0.2");
-MODULE_AUTHOR("cmy@rock-chips.com, cz@rock-chips.com");
+MODULE_DESCRIPTION("rock-chips rfkill for Bluetooth v0.2a");
+MODULE_AUTHOR("cmy@rock-chips.com, cz@rock-chips.com, zhecka@gmail.com");
 MODULE_LICENSE("GPL");
 

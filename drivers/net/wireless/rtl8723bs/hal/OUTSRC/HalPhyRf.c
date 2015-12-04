@@ -18,8 +18,8 @@
  *
  ******************************************************************************/
 
-//#include "Mp_Precomp.h"
-#include "odm_precomp.h"
+#include "Mp_Precomp.h"
+#include "phydm_precomp.h"
 
 
 #define 	CALCULATE_SWINGTALBE_OFFSET(_offset, _direction, _size, _deltaThermal) \
@@ -37,12 +37,70 @@
 							_offset = _size-1;\
 					} while(0)
 
+#if (RTL8192C_SUPPORT||RTL8192D_SUPPORT||RTL8723A_SUPPORT)
+void phydm_txpwrtrack_setpwr_dummy(
+	PDM_ODM_T			pDM_Odm,
+	PWRTRACK_METHOD 	Method,
+	u1Byte 				RFPath,
+	u1Byte 				ChannelMappedIndex
+	)
+{};
+
+void doiqk_dummy(
+	PDM_ODM_T	pDM_Odm,
+	u1Byte 		DeltaThermalIndex,
+	u1Byte		ThermalValue,	
+	u1Byte 		Threshold
+	)
+{};
+
+VOID phy_lccalibrate_dummy(
+	IN PDM_ODM_T		pDM_Odm
+	)
+{};
+
+VOID get_delta_swing_table_dummy(
+	IN 	PDM_ODM_T			pDM_Odm,
+	OUT pu1Byte 			*TemperatureUP_A,
+	OUT pu1Byte 			*TemperatureDOWN_A,
+	OUT pu1Byte 			*TemperatureUP_B,
+	OUT pu1Byte 			*TemperatureDOWN_B	
+	)
+{};
+
+void configure_txpower_track_dummy(
+	PTXPWRTRACK_CFG	pConfig
+	)
+{
+
+	pConfig->ODM_TxPwrTrackSetPwr = phydm_txpwrtrack_setpwr_dummy;
+	pConfig->DoIQK = doiqk_dummy;
+	pConfig->PHY_LCCalibrate = phy_lccalibrate_dummy;
+	pConfig->GetDeltaSwingTable = get_delta_swing_table_dummy;
+}
+#endif
 
 void ConfigureTxpowerTrack(
 	IN 	PDM_ODM_T		pDM_Odm,
 	OUT	PTXPWRTRACK_CFG	pConfig
 	)
 {
+
+#if RTL8192C_SUPPORT
+	if(pDM_Odm->SupportICType==ODM_RTL8192C)
+		configure_txpower_track_dummy(pConfig);
+#endif
+
+#if RTL8192D_SUPPORT
+	if(pDM_Odm->SupportICType==ODM_RTL8192D)
+		configure_txpower_track_dummy(pConfig);
+#endif
+
+#if RTL8723A_SUPPORT
+	if(pDM_Odm->SupportICType==ODM_RTL8723A)
+		configure_txpower_track_dummy(pConfig);
+#endif
+
 #if RTL8192E_SUPPORT
 	if(pDM_Odm->SupportICType==ODM_RTL8192E)
 		ConfigureTxpowerTrack_8192E(pConfig);
@@ -161,7 +219,7 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 #endif
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	if ( *(pDM_Odm->mp_mode) == 1)
+	if (pDM_Odm->mp_mode == TRUE)
 #endif
 		// <Kordan> RFCalibrateInfo.RegA24 will be initialized when ODM HW configuring, but MP configures with para files.
 		pDM_Odm->RFCalibrateInfo.RegA24 = 0x090e1317;
@@ -175,7 +233,7 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 	ThermalValue = (u1Byte)ODM_GetRFReg(pDM_Odm, ODM_RF_PATH_A, c.ThermalRegAddr, 0xfc00);	//0x42: RF Reg[15:10] 88E
 	if( ! pDM_Odm->RFCalibrateInfo.TxPowerTrackControl || pHalData->EEPROMThermalMeter == 0 || 
 		pHalData->EEPROMThermalMeter == 0xFF)
-        return;
+		return;
 
 
 	//4 3. Initialize ThermalValues of RFCalibrateInfo
@@ -378,10 +436,9 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 				pDM_Odm->RFCalibrateInfo.PowerIndexOffset[ODM_RF_PATH_A], delta, ThermalValue, pHalData->EEPROMThermalMeter, pDM_Odm->RFCalibrateInfo.ThermalValue));	
 
 			if(c.RfPathCount > 1)
-			ODM_RT_TRACE(pDM_Odm,ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD,
-				("Temperature Increasing(B): delta_pi: %d , delta_t: %d, Now_t: %d, EFUSE_t: %d, Last_t: %d\n", 
-				pDM_Odm->RFCalibrateInfo.PowerIndexOffset[ODM_RF_PATH_B], delta, ThermalValue, pHalData->EEPROMThermalMeter, pDM_Odm->RFCalibrateInfo.ThermalValue));	
-
+				ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD,
+					("Temperature Increasing(B): delta_pi: %d , delta_t: %d, Now_t: %d, EFUSE_t: %d, Last_t: %d\n",
+					pDM_Odm->RFCalibrateInfo.PowerIndexOffset[ODM_RF_PATH_B], delta, ThermalValue, pHalData->EEPROMThermalMeter, pDM_Odm->RFCalibrateInfo.ThermalValue));
 		}
 		else if (ThermalValue < pDM_Odm->RFCalibrateInfo.ThermalValue)// Low temperature
 		{
@@ -390,10 +447,9 @@ ODM_TXPowerTrackingCallback_ThermalMeter(
 				pDM_Odm->RFCalibrateInfo.PowerIndexOffset[ODM_RF_PATH_A], delta, ThermalValue, pHalData->EEPROMThermalMeter, pDM_Odm->RFCalibrateInfo.ThermalValue));				
 
 			if(c.RfPathCount > 1)
-			ODM_RT_TRACE(pDM_Odm,ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD,
-				("Temperature Decreasing(B): delta_pi: %d , delta_t: %d, Now_t: %d, EFUSE_t: %d, Last_t: %d\n",
-				pDM_Odm->RFCalibrateInfo.PowerIndexOffset[ODM_RF_PATH_B], delta, ThermalValue, pHalData->EEPROMThermalMeter, pDM_Odm->RFCalibrateInfo.ThermalValue));				
-
+				ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD,
+					("Temperature Decreasing(B): delta_pi: %d , delta_t: %d, Now_t: %d, EFUSE_t: %d, Last_t: %d\n",
+					pDM_Odm->RFCalibrateInfo.PowerIndexOffset[ODM_RF_PATH_B], delta, ThermalValue, pHalData->EEPROMThermalMeter, pDM_Odm->RFCalibrateInfo.ThermalValue));
 		}
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
 		if (ThermalValue > pHalData->EEPROMThermalMeter)

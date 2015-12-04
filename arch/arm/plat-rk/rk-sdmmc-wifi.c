@@ -29,8 +29,8 @@ int rk29sdk_bt_power_state = 0;
     #if defined(CONFIG_USE_SDMMC0_FOR_WIFI_DEVELOP_BOARD)
     	/////////////////////////////////////////////////////////////////////////////////////
 	    // set the gpio to develop wifi EVB if you select the macro of CONFIG_USE_SDMMC0_FOR_WIFI_DEVELOP_BOARD
-	    #define USE_SDMMC_CONTROLLER_FOR_WIFI   0
-   		#define COMBO_MODULE_MT6620_CDT         0  //- 1--use Cdtech chip; 0--unuse CDT chip
+	#define USE_SDMMC_CONTROLLER_FOR_WIFI   0
+   	#define COMBO_MODULE_MT6620_CDT         0  //- 1--use Cdtech chip; 0--unuse CDT chip
         //power
         #define RK30SDK_WIFI_GPIO_POWER_N                   RK30_PIN3_PD0            
         #define RK30SDK_WIFI_GPIO_POWER_ENABLE_VALUE        GPIO_HIGH        

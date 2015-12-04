@@ -1583,7 +1583,8 @@ static struct i2c_board_info __initdata i2c0_info[] = {
 int __sramdata g_pmic_type =  0;
 #ifdef CONFIG_I2C1_RK30
 #ifdef CONFIG_REGULATOR_ACT8846
-#define PMU_POWER_SLEEP RK30_PIN0_PA1
+#define PMU_POWER_SLEEP INVALID_GPIO
+//#define PMU_POWER_SLEEP RK30_PIN0_PA1
 #define PMU_VSEL RK30_PIN3_PD3
 #define ACT8846_HOST_IRQ                RK30_PIN0_PB3
 
@@ -1652,10 +1653,15 @@ static  struct pmu_info  act8846_ldo_info[] = {
 		.min_uv          = 3300000,
 		.max_uv         = 3300000,
 	},
-	{
+/*	{
 		.name          = "act_ldo6",   //vcc_jetta
 		.min_uv          = 1800000,
 		.max_uv         = 1800000,
+	},*/
+	{	// pathed by aborche
+		.name          = "act_ldo6",   //vccio_wl
+		.min_uv          = 3300000,
+		.max_uv         = 3300000,
 	},
 	{
 		.name          = "act_ldo7",   //vcc18

@@ -210,5 +210,32 @@ source "drivers/net/wireless/combo_mt66xx/Kconfig"
 source "drivers/net/wireless/mt5931_kk/Kconfig"
 endif # MTK_WIRELESS_SOLUTION
 
+choice
+        prompt "WiFi device driver init"
+        default RFKILL_CLASSIC
+
+	config RFKILL_CLASSIC
+	bool "RFKILL Classic Init"
+	help
+	  "Use classic init RFKILL with WIFI driver"
+
+	config RFKILL_LATE
+	bool "RFKILL Late Init(RABIAN)"
+	help
+	  "Each driver use MODULE_EXPORT syscall, when driver is loaded by
+	   kernel, rfkill wait system start and then init driver"
+
+	config RFKILL_EARLY
+	bool "Driver LateCall Init(Ubuntu,Linaro)"
+	help
+	  "Each driver use late_initcall syscall, when driver is loaded by
+	   kernel, kernel wait systemd start and then rfkill init driver"
+endchoice
+
+config RFKILL_DEBUG
+	bool "Enable DEBUG for RFKILL"
+	default n
+
+
 endif
 
