@@ -2018,7 +2018,8 @@ int dwc_otg_pcd_init(struct device *dev)
             pldata->dwc_otg_uart_mode(pldata, PHY_UART_MODE);
         }//phy bypass to uart mode
 #endif
-        mod_timer(&pcd->check_vbus_timer, jiffies+(HZ<<4)); // delay 16 S 
+        ///mod_timer(&pcd->check_vbus_timer, jiffies+(HZ<<4)); // delay 16 S 
+        mod_timer(&pcd->check_vbus_timer, jiffies+(HZ)); // delay 16 S 
     }
 #ifdef CONFIG_RK_USB_UART
     else if(pldata->dwc_otg_uart_mode != NULL)
